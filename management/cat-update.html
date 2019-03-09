@@ -2,21 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>修改</title>
+    <title>增加/修改猫</title>
     <script src="../js/vue.min.js"></script>
     <script src="../js/axios.js"></script>
     <script src="../js/app.js"></script>
 
 </head>
 <body>
-<form>
-    <form action="http://149.28.208.187:8080/visualcattery-api/updateCat" method="get">
-        <label>名字: <input type="text" name="name" /></label><br>
-        <label>性别: <input type="text" name="lname" /></label><br>
-        <label>生日: <input type="datetime-local" name="lname" /></label><br>
-        <label>介绍: <input type="text" name="lname" /></label><br>
-        <button type="submit">保存</button>
-    </form>
-</form>
+<div id="app">
+        <div>
+            <label hidden>猫id：<input name="id" value="form.id"></label>
+            <label>名字: <input name="name" v-model="form.name" type="text"/></label><br>
+            <label>性别: <input name="gender" v-model="form.gender"  type="text"/></label><br>
+            <label>生日: <input name="birthday" v-model="form.birthday"  type="date"/></label><br>
+            <label>介绍: <input name="introduction" v-model="form.introduction"  type="text"/></label><br>
+            <button onclick="submit()">保存</button>
+        </div>
+
+</div>
+
 </body>
+
+<script>
+
+var app = new Vue({
+    el: '#app',
+    data: {
+        form: {
+            id: '',
+            name: '',
+            gender: '',
+            birthday: null,
+            introduction: '',
+        }
+    }
+})
+
+function getQueryString (name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
+}
+
+let id = getQueryString("id");
+
+if(id){
+    app.form.id = id;
+    findCat(id);
+}
+
+function findCat (id) {
+    axios.get(Host+'/cat/findCat/'+id)
+        .then(function (response) {
+            console.log(response);
+
+            app.form = response.data
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+}
+
+
+
+function submit () {
+    app.form.gender = parseInt(app.form.gender)
+    axios.post(Host+'/cat/updateCat', app.form)
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+}
+
+</script>
 </html>

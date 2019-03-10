@@ -40,7 +40,7 @@ var app = new Vue({
 })
 
 function findAllCats () {
-    axios.get(Host+'/cat/findAllCats')
+    axios.get(Host+'/cat/findAllCats',)
         .then(function (response) {
             console.log(response);
             app.list = response.data

@@ -5,6 +5,7 @@
     <title>猫</title>
     <script src="../js/vue.min.js"></script>
     <script src="../js/axios.js"></script>
+    <script src="../js/jquery-1.11.0.js"></script>
     <script src="../js/app.js"></script>
 </head>
 <body>
@@ -40,7 +41,8 @@ var app = new Vue({
 })
 
 function findAllCats () {
-    axios.get(Host+'/cat/findAllCats',)
+
+    axios.get(Host+'/cat/findAllCats')
         .then(function (response) {
             console.log(response);
             app.list = response.data

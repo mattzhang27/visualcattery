@@ -87,6 +87,10 @@ function findCat (id) {
         .then(function (response) {
             if (response.data && response.data.success) {
                 app.form = response.data.data.cat
+
+                app.form.birthday = app.form.birthday.substring(0, 10)
+
+                console.log(app.form.birthday)
             } else {
                 alert(response.data.message)
             }

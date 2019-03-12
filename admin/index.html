@@ -28,6 +28,8 @@
 
     </table>
 
+    <button><a href='cat-update.html'>新增猫咪</a></button>
+
 
 </div>
 <script>
@@ -44,7 +46,8 @@ function findAllCats () {
     axios.get(Host+'/cat/findAllCats')
         .then(function (response) {
             console.log(response);
-            app.list = response.data
+
+            app.list = response.data.data.list
 
         })
         .catch(function (error) {

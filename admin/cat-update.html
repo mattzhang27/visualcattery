@@ -9,14 +9,17 @@
 </head>
 <body>
 <div id="app">
-        <div>
-            <label hidden>猫id：<input name="id" value="form.id"></label>
-            <label>名字: <input name="name" v-model="form.name" type="text"/></label><br>
-            <label>性别: <input name="gender" v-model="form.gender"  type="text"/></label><br>
-            <label>生日: <input name="birthday" v-model="form.birthday"  type="date"/></label><br>
-            <label>介绍: <input name="introduction" v-model="form.introduction"  type="text"/></label><br>
-            <button onclick="submit()">保存</button>
-        </div>
+    <div>
+        <label hidden>猫id：<input name="id" value="form.id"></label>
+        <label>名字: <input name="name" type="text" v-model="form.name"/></label><br>
+        <label>性别: <input name="gender" type="text" v-model="form.gender"/></label><br>
+        <label>生日: <input name="birthday" type="date" v-model="form.birthday"/></label><br>
+        <label>介绍: <input name="introduction" type="text" v-model="form.introduction"/></label><br>
+        <label>图片：<input @change="change($event)" id="file" name="file" type="file"></label><br>
+        <img :src="HostImg+form.img" height="200px" width="200px"><br>
+
+        <button onclick="submit()">保存</button>
+    </div>
 
 </div>
 
@@ -33,10 +36,37 @@ var app = new Vue({
             gender: '',
             birthday: null,
             introduction: '',
+            img: ''
+        },
+        file: null,
+    },
+    methods: {
+        change: function (event) {
+            this.file = event.target.files[0]
+        },
+        uploadImg: function (callback) {
+            var data = new FormData();//重点在这里 如果使用 var data = {}; data.inputfile=... 这样的方式不能正常上传
+            data.append("file", this.file)
+            console.log(data)
+
+            let headers = {headers: {"Content-Type": "multipart/form-data"}}
+            axios.post(Host + "/upload", data, headers).then(function (response) {
+
+                if (response.data && response.data.success) {
+                    callback && callback(response.data.data.img)
+                } else {
+                    console.log(response);
+                }
+
+            }, function (err) {
+                console.log(err);
+            })
         }
+
     }
 })
 
+//获取url参数
 function getQueryString (name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
     var r = window.location.search.substr(1).match(reg);
@@ -46,34 +76,82 @@ function getQueryString (name) {
 
 let id = getQueryString("id");
 
-if(id){
+if (id) {
     app.form.id = id;
     findCat(id);
 }
 
+//查询猫咪
 function findCat (id) {
-    axios.get(Host+'/cat/findCat/'+id)
+    axios.get(Host + '/cat/findCat/' + id)
         .then(function (response) {
-            console.log(response);
-
-            app.form = response.data
+            if (response.data && response.data.success) {
+                app.form = response.data.data.cat
+            } else {
+                alert(response.data.message)
+            }
         })
         .catch(function (error) {
             console.log(error);
         });
 }
 
-
-
+//点击提交
 function submit () {
-    app.form.gender = parseInt(app.form.gender)
-    axios.post(Host+'/cat/updateCat', app.form)
-        .then(function (response) {
-            console.log(response);
+
+    if (!app.form.name) {
+        alert("请输入猫的名称")
+        return
+    }
+    if (!app.form.gender) {
+        alert("请输入猫的性别")
+        return
+    }
+    if (!app.form.birthday) {
+        alert("请输入猫的生日")
+        return
+    }
+    if (!app.form.introduction) {
+        alert("请输入猫的介绍")
+        return
+    }
+    if (!app.form.img && !app.file) {
+        alert("请上传猫的图片")
+        return
+    }
+
+    if(app.file){
+        //上传新图
+        //图片上传成功后再发请求
+        app.uploadImg(function (img) {
+            app.form.img = img
+            save()
+
         })
-        .catch(function (error) {
-            console.log(error);
-        });
+
+    }else{
+        save()
+    }
+
+    //保存信息
+    function save () {
+        app.form.gender = parseInt(app.form.gender)
+        axios.post(Host + '/cat/updateCat', app.form)
+            .then(function (response) {
+
+                if (response.data && response.data.success) {
+                    alert(response.data.message)
+                } else {
+                    console.log(response);
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+
+
 
 }
 

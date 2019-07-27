@@ -40,29 +40,39 @@
 </div>
 <script>
 
-var app = new Vue({
-    el: '#app',
-    data: {
-        list: []
-    }
-})
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            list: []
+        },
+        methods: {
+            findAllCats() {
+                axios.get(Host + '/cat/findAllCats')
+                    .then(function (response) {
+                        console.log(response);
 
-function findAllCats () {
+                        vm.list = response.data.data.list
 
-    axios.get(Host + '/cat/findAllCats')
-        .then(function (response) {
-            console.log(response);
-
-            app.list = response.data.data.list
-
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-
-}
-
-findAllCats();
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    })
+            }
+        },
+        filters: {
+            currencydecimal(value) {
+                return value.toFixed(2)
+            }
+        },
+        mounted() {
+            this.findAllCats()
+        },
+        watch: {
+            name(newName) {
+                localStorage.name = newName;
+            }
+        }
+    })
 
 
 </script>
